@@ -128,7 +128,12 @@ getEsriFeatures <- function(queryUrl, fields, where, bbox, token = "", crs = 432
     crs <- toJSON(list("wkt" = WKTunPretty(st_crs(crs)$WKT1_ESRI)), auto_unbox=TRUE)
   }
 
-  results <- lapply(idSplits, getEsriFeaturesByIds, queryUrl, fields, token, crs, ...)
+  if (requireNamespace("furrr", quietly = TRUE)) {
+    results <- furrr::future_map(idSplits, getEsriFeaturesByIds, queryUrl, fields, token, crs, ...)
+  } else {
+    results <- lapply(idSplits, getEsriFeaturesByIds, queryUrl, fields, token, crs, ...)
+  }
+
   unlist(results, recursive = FALSE)
 }
 
